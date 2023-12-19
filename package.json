@@ -1,0 +1,49 @@
+{
+    "package_version": 1,
+    "version": "1.0.0",
+    "name": "maid",
+    "description": "i18n:maid.description",
+    "main": "./main.js",
+    "devDependencies": {
+        "@types/node": "^16.0.1",
+        "typescript": "^4.3.4"
+    },
+    "author": "stollor",
+    "editor": ">=3.7.4",
+    "scripts": {
+        "build": "tsc -b",
+        "watch": "tsc -w"
+    },
+    "contributions": {
+        "asset-db": {
+            "mount": {
+                "path": "./assets",
+                "readonly": false
+            }
+        },
+        "shortcuts": [
+            {
+                "message": "setActive",
+                "win": "alt+q",
+                "mac": "alt+q"
+            },
+            {
+                "message": "setActiveRadio",
+                "win": "alt+shift+q",
+                "mac": "alt+shift+q"
+            }
+        ],
+        "messages": {
+            "setActive": {
+                "methods": [
+                    "setActive"
+                ]
+            },
+            "setActiveRadio": {
+                "methods": [
+                    "setActiveRadio"
+                ]
+            }
+        }
+    }
+}
