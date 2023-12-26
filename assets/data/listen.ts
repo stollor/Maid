@@ -43,7 +43,9 @@ export class Listen extends Component {
 		if (!this.key) return;
 
 		this.data = maid.database.get(this.key);
-		this.data.on('change', this.onChange, this);
+		this.data.listen((data, old) => {
+			this.onChange(data);
+		}, this);
 	}
 
 	onChange(data) {

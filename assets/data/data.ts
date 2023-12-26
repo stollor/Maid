@@ -1,4 +1,22 @@
-import { EventManager } from '../corekit/manager/event-manger';
+import { isValid } from 'cc';
+
+/**
+ * 监听的类型
+ */
+enum ListenType {
+	/**监听改变,返回具体的EventType */
+	Change = 'Data_Change',
+	/**监听数据,返回新旧数据 */
+	Data = 'Data',
+}
+
+enum EventType {
+	Add,
+	Del,
+	Sweap,
+	Refresh,
+	Set,
+}
 
 /**
  * 数据, 用于监听数据变化
@@ -9,21 +27,25 @@ import { EventManager } from '../corekit/manager/event-manger';
  * 		del:数组,对象删除元素								(value,index)
  * 		set:数组,对象修改属性								(value,index/key)
  */
-export class Data<T = any> extends EventManager {
-	public _value: T;
-	public _oldValue: T;
+export class Data<T = any> {
+	private _value: T;
+	private _oldValue: T;
 
-	constructor(data: T) {
-		super();
+	private _changeEventList: [Function, any, string][] = [];
+	private _dataEventList: [Function, any, string][] = [];
+
+	constructor(data?: any) {
 		this._value = data;
 		this._oldValue = null;
+		this._changeEventList = [];
+		this._dataEventList = [];
 	}
 
 	public set value(value: T) {
 		if (this._value === value) return;
 		this._oldValue = this._value;
 		this._value = value;
-		this.emit('change', { newValue: this._value, oldVal: this._oldValue });
+		this.emit(ListenType.Change, { newValue: this._value, oldVal: this._oldValue });
 	}
 
 	public get value(): T {
@@ -33,6 +55,47 @@ export class Data<T = any> extends EventManager {
 			return new CustomObject<T>(this._value, this) as T;
 		} else return this._value;
 	}
+
+	private _onChange(type: EventType, value: any, index: number | string) {
+		this._changeEventList = this._changeEventList.filter(([fun, target]) => isValid(target));
+		this._changeEventList.forEach(([fun, target]) => {
+			fun.apply(target, [type, value, index]);
+		});
+	}
+
+	private _onListen(newData: T, oldVal: T) {
+		this._dataEventList = this._dataEventList.filter(([fun, target]) => isValid(target));
+		this._dataEventList.forEach(([fun, target]) => {
+			fun.apply(target, [newData, oldVal]);
+		});
+	}
+
+	public emit(key: string, ...args: any) {
+		if (key === ListenType.Change) {
+			this._onChange.apply(this, args); //args.type, args.value, args.index);
+		} else if (key === ListenType.Data) {
+			this._onListen.apply(this, args); //(args.newData, args.oldVal);
+		}
+	}
+
+	public listenEvent(callback: (type?: EventType, value?: any, index?: number | string) => void, target: any, key: string = '') {
+		if (key != '') {
+			this._changeEventList = this._changeEventList.filter(([fun, target, key1]) => key1 == '' || key1 != key);
+		}
+		this._changeEventList.push([callback, target, key]);
+		return this;
+	}
+
+	public listen(callback: (newData?: T, oldVal?: T) => void, target: any, key: string = '') {
+		if (key != '') {
+			this._dataEventList = this._dataEventList.filter(([fun, target, key1]) => key1 == '' || key1 != key);
+		}
+		this._dataEventList.push([callback, target, key]);
+		callback.apply(target, [this._value, this._oldValue]);
+		return this;
+	}
+
+	public onlyOnce(key: any) {}
 
 	/**
 	 * 更新数据
@@ -61,29 +124,29 @@ class CustomArray<T> {
 				if (prop === 'push') {
 					return (value: T) => {
 						let result = this.array.push(value);
-						this.data.value = this.array;
-						this.data.emit('add', { value: value, index: -1 });
+						this.data.emit(ListenType.Data, this.array);
+						this.data.emit(ListenType.Change, EventType.Add, value, this.array.length - 1);
 						return result;
 					};
 				} else if (prop === 'unshift') {
 					return (value: T) => {
-						let result = this.array.unshift();
-						this.data.value = this.array;
-						this.data.emit('add', { value: value, index: 0 });
+						let result = this.array.unshift(value);
+						this.data.emit(ListenType.Data, this.array);
+						this.data.emit(ListenType.Change, EventType.Add, value, 0);
 						return result;
 					};
 				} else if (prop === 'pop') {
 					return () => {
 						let result = this.array.pop();
-						this.data.value = this.array;
-						this.data.emit('del', { value: value, index: -1 });
+						this.data.emit(ListenType.Data, this.array);
+						this.data.emit(ListenType.Change, EventType.Del, value, this.array.length - 1);
 						return result;
 					};
 				} else if (prop === 'shift') {
 					return () => {
 						let result = this.array.shift();
-						this.data.value = this.array;
-						this.data.emit('del', { value: value, index: 0 });
+						this.data.emit(ListenType.Data, this.array);
+						this.data.emit(ListenType.Change, EventType.Del, value, 0);
 						return result;
 					};
 				} else if (prop === 'length') {
@@ -108,15 +171,15 @@ class CustomObject<T> {
 				return this.object[prop]; // Reflect.get(this.object, prop, receiver);
 			},
 			set: (target, prop, value, receiver) => {
-				this.data.emit('change', { newValue: this.object });
-				this.data.emit('set', { value: value, key: prop });
+				this.data.emit(ListenType.Data, this.object);
+				this.data.emit(ListenType.Change, EventType.Set, value, prop);
 				this.object[prop] = value;
 				return true;
 				//return Reflect.set(target, prop, value, receiver);
 			},
 			deleteProperty: (target, prop) => {
-				this.data.emit('change', { newValue: this.object });
-				this.data.emit('del', { value: this.object[prop], key: prop });
+				this.data.emit(ListenType.Data, this.object);
+				this.data.emit(ListenType.Change, EventType.Del, this.object[prop], prop);
 				delete this.object[prop];
 				return true;
 				//return Reflect.deleteProperty(target, prop);

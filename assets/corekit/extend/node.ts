@@ -1,4 +1,4 @@
-import { _decorator, Node, UIOpacity, UITransform } from 'cc';
+import { _decorator, Label, Node, UIOpacity, UITransform } from 'cc';
 import { Data } from '../../data/data';
 
 const { ccclass, property } = _decorator;
@@ -12,8 +12,25 @@ declare module 'cc' {
 		move: (x: number, y: number) => void;
 		moveAnchorTo: (x: number, y: number) => void;
 		getExtendComponent: (comp: any) => any;
+		setStr: (data: string | Data) => void;
 	}
 }
+
+Node.prototype.setStr = function (data: string | Data) {
+	let label = this.getComponent(Label);
+	if (!label) return;
+	if (typeof data === 'string') {
+		label.string = data;
+	} else if (data instanceof Data) {
+		data.listen(
+			(str) => {
+				label.string = str;
+			},
+			this,
+			'default'
+		);
+	}
+};
 
 Node.prototype.move = function (x: number, y: number) {
 	this.setPosition(this.position.x + x, this.position.y + y);
