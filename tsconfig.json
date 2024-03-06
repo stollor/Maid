@@ -12,6 +12,11 @@
         "resolveJsonModule": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+         /* Add your custom configuration here. */
+        "paths": {
+            // 注意：这里的相对路径是相对于 tsconfig.json 所在的路径
+            "@Maid": ["./assets/index.ts"]
+        }
     },
     "exclude": [
         "./assets"
