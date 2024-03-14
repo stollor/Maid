@@ -5,6 +5,7 @@ import { AssetsManager } from './manager/assets/assets-manager';
 import { BundleManager } from './manager/assets/bundle-manager';
 import { AudioManager } from './manager/audio-manger';
 import { NodePoolManager } from './manager/catch/node-pool-manager';
+import { DebugManger } from './manager/debug-manger';
 import { EventManager } from './manager/event-manger';
 import { GlobalManager } from './manager/global-manger';
 import { MouseManger } from './manager/mouse-manger';
@@ -20,6 +21,7 @@ declare module '../index' {
 		mouse: MouseManger;
 		ui: UIManager;
 		audio: AudioManager;
+		debug: DebugManger;
 	}
 }
 
@@ -32,6 +34,7 @@ Maid.prototype.global = GlobalManager.getInstance();
 Maid.prototype.mouse = MouseManger.getInstance();
 Maid.prototype.ui = UIManager.getInstance();
 Maid.prototype.audio = AudioManager.getInstance();
+Maid.prototype.debug = DebugManger.getInstance();
 
 let oldTick = director.tick.bind(director);
 director.tick = function (dt) {
