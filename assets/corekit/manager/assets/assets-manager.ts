@@ -40,4 +40,19 @@ export class AssetsManager extends Singleton {
 		const bundle = await this._bundleManager.getBundle(bundleName);
 		bundle.release(url);
 	}
+
+	@catchAsync('加载文件夹')
+	public async loadDir(dir:string, bundleName: string = this.defaultBundleName){
+		if (!bundleName) throw new Error('bundleName is empty');
+		if (!dir) throw new Error('dir is empty');
+		const bundle = await this._bundleManager.getBundle(bundleName);
+		const asset = new Promise((resolve, reject) => {
+			bundle.loadDir(dir,(err:any,data:Asset[])=>{
+				if (err) reject(err);
+				else resolve(data );
+			})
+		});
+		return asset
+		
+	}
 }
