@@ -74,8 +74,4 @@ export class BundleManager extends Singleton {
 		}
 		return false;
 	}
-
-	// public load(name:, callback) {
-	// 	assetManager.loadBundle(name, callback);
-	// }
 }
