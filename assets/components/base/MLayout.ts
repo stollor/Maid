@@ -10,6 +10,7 @@ export class MLayout extends Layout {
     @property(CCInteger) _itemNum: number = 0;
     @property({
         type: CCInteger,
+        range: [0, Number.MAX_VALUE],
     })
     get itemNum() {
         return this._itemNum;
