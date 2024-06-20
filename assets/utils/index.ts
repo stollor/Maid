@@ -1,4 +1,4 @@
-import { Singleton } from '../corekit/base/singleton';
+import { Singleton } from '../corekit/decorater/function';
 import { Maid } from '../index';
 import { DrawUtil } from './draw';
 import { FileUtil } from './file';
@@ -13,7 +13,9 @@ declare module '../index' {
 	}
 }
 
-export class Utils extends Singleton {
+@Singleton
+export class Utils {
+	static getInstance: () => Utils;
 	public draw: DrawUtil;
 	public file: FileUtil;
 	public math: MathUtil;
@@ -22,7 +24,6 @@ export class Utils extends Singleton {
 	public tween: TweenUtil;
 
 	constructor() {
-		super();
 		this.draw = new DrawUtil();
 		this.file = new FileUtil();
 		this.math = new MathUtil();

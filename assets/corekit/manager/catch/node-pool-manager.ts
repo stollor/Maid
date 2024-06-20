@@ -1,8 +1,11 @@
 import { Node, Prefab } from 'cc';
-import { Singleton } from '../../base/singleton';
+
+import { Singleton } from '../../decorater/function';
 import { NodePool } from './node-pool';
 
-export class NodePoolManager extends Singleton {
+@Singleton
+export class NodePoolManager {
+	static getInstance: () => NodePoolManager;
 	//节点池
 	private _nodePool: Map<string, NodePool>;
 	private _defineCount: number;
@@ -14,7 +17,6 @@ export class NodePoolManager extends Singleton {
 	 * @param max 节点的默认最大缓存值
 	 */
 	constructor(count: number = 1, max: number = 10) {
-		super();
 		this._nodePool = new Map<string, NodePool>();
 		this._defineCount = count;
 		this._defineMax = max;

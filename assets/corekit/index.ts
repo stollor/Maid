@@ -32,7 +32,7 @@ Maid.prototype.pool = NodePoolManager.getInstance();
 Maid.prototype.bundl = BundleManager.getInstance();
 Maid.prototype.global = GlobalManager.getInstance();
 Maid.prototype.mouse = MouseManger.getInstance();
-Maid.prototype.ui = UIManager.getInstance();
+Maid.prototype.ui = UIManager.getInstance(); //UIManager.getInstance();
 Maid.prototype.audio = AudioManager.getInstance();
 Maid.prototype.debug = DebugManger.getInstance();
 

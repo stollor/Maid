@@ -1,7 +1,9 @@
 import { EventMouse, find, Node } from 'cc';
-import { Singleton } from '../base/singleton';
+import { Singleton } from '../decorater/function';
 
-export class MouseManger extends Singleton {
+@Singleton
+export class MouseManger {
+	static getInstance: () => MouseManger;
 	onEnable() {
 		var canvas: Node = find('Canvas')!;
 		canvas.on(Node.EventType.MOUSE_MOVE, this.onMove, this);

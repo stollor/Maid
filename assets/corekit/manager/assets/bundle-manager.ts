@@ -1,7 +1,6 @@
 import { AssetManager, assetManager } from 'cc';
 
-import { Singleton } from '../../base/singleton';
-import { catchAsync, catchError } from '../../decorater/function';
+import { Singleton, catchAsync, catchError } from '../../decorater/function';
 
 /**
  * bundle管理器
@@ -16,24 +15,21 @@ import { catchAsync, catchError } from '../../decorater/function';
  * assetsMgr.bundleMgr.removeBundle('h5doc');
  * ```
  */
-export class BundleManager extends Singleton {
+@Singleton
+export class BundleManager {
+	static getInstance: () => BundleManager;
 	private _lock: Map<string, Promise<AssetManager.Bundle>>;
 
 	constructor() {
-		super();
 		this._lock = new Map();
 	}
 
 	@catchAsync('获取bundle')
 	public async getBundle(name: string): Promise<AssetManager.Bundle> {
-		return new Promise(async (resolve, reject) => {
-			let bundle = assetManager.getBundle(name) || (await this.loadBundle(name));
-			if (bundle) {
-				resolve(bundle);
-			} else {
-				reject(`bundle ${name} 不存在`);
-			}
-		});
+		let bundle = assetManager.getBundle(name) || (await this.loadBundle(name));
+		if (bundle) return bundle;
+		maid.debug.error(`bundle ${name} 不存在`);
+		return null;
 	}
 
 	/**

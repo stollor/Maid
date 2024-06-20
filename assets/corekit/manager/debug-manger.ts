@@ -1,5 +1,5 @@
 import { sys } from 'cc';
-import { Singleton } from '../base/singleton';
+import { Singleton } from '../decorater/function';
 
 enum DebugType {
 	/**开发模式 */
@@ -9,13 +9,11 @@ enum DebugType {
 	Release = 1,
 }
 
-export class DebugManger extends Singleton {
+@Singleton
+export class DebugManger {
+	static getInstance: () => DebugManger;
 	static EventType: typeof DebugType = DebugType;
 	static static: DebugType = DebugType.Develop;
-
-	constructor() {
-		super();
-	}
 
 	public log(...args: any[]) {
 		if (DebugManger.static == DebugType.Develop) {

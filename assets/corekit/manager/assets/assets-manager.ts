@@ -1,13 +1,15 @@
 import { Asset, AssetManager, Constructor } from 'cc';
-import { Singleton } from '../../base/singleton';
-import { catchAsync } from '../../decorater/function';
+import { Singleton, catchAsync } from '../../decorater/function';
 import { BundleManager } from './bundle-manager';
 
 const AskUrl = <T>(url: string, asset?: Constructor<T>) => {
-	return url + asset ? asset.toString() : 'none';
+	let a = url + '_' + (asset ? asset.prototype.constructor.name : 'Define');
+	return a;
 };
 
-export class AssetsManager extends Singleton {
+@Singleton
+export class AssetsManager {
+	static getInstance: () => AssetsManager;
 	private _bundleManager: BundleManager;
 	public defaultBundleName: string = 'resources';
 	private _askingMap: Map<string, any> = new Map(); //资源缓存
@@ -23,7 +25,6 @@ export class AssetsManager extends Singleton {
 	}
 
 	constructor() {
-		super();
 		this._bundleManager = BundleManager.getInstance();
 	}
 
@@ -32,16 +33,16 @@ export class AssetsManager extends Singleton {
 	}
 
 	@catchAsync('加载资源')
-	public async load<T extends Asset>(
-		url: string,
-		type?: Constructor<T>,
-		bundleName: string = this.defaultBundleName
-	): Promise<T> {
+	public async load<T extends Asset>(url: string, type?: Constructor<T>, bundleName: string = this.defaultBundleName): Promise<T> {
 		if (!bundleName) throw new Error('bundleName is empty');
 		if (!url) throw new Error('url is empty');
 		const bundle = await this._bundleManager.getBundle(bundleName);
-		if (this._askingMap.has(AskUrl(url, type))) return this._askingMap.get(AskUrl(url, type));
-		if (this.getCache<T>(bundle, url, type)) return this.getCache<T>(bundle, url, type);
+		if (this._askingMap.has(AskUrl(url, type))) {
+			return this._askingMap.get(AskUrl(url, type));
+		}
+		if (this.getCache<T>(bundle, url, type)) {
+			return this.getCache<T>(bundle, url, type);
+		}
 		const asset = new Promise<T>((resolve, reject) => {
 			bundle.load<T>(url, (err: any, asset: T) => {
 				this._askingMap.delete(AskUrl(url, type));

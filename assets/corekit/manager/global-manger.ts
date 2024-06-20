@@ -1,5 +1,7 @@
-import { Singleton } from '../base/singleton';
+import { Singleton } from '../decorater/function';
 
-export class GlobalManager extends Singleton {
+@Singleton
+export class GlobalManager {
+	static getInstance: () => GlobalManager;
 	public timeScale: number = 1;
 }

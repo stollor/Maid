@@ -1,5 +1,5 @@
 import { js } from 'cc';
-import { Singleton } from '../base/singleton';
+import { Singleton } from '../decorater/function';
 
 const fastRemoveAt = js.array.fastRemoveAt;
 
@@ -16,7 +16,9 @@ class BaseEvent {
 /**
  * 全局事件管理
  */
-export class EventManager extends Singleton {
+@Singleton
+export class EventManager {
+	static getInstance: () => EventManager;
 	private _eventList: any = {};
 	private _eventMap: any = {};
 

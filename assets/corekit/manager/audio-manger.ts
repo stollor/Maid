@@ -1,7 +1,10 @@
 import { AudioClip, AudioSource, Node } from 'cc';
-import { Singleton } from '../base/singleton';
+import { Singleton } from '../decorater/function';
 
+@Singleton
 export class AudioNode {
+	static getInstance: () => AudioNode;
+
 	private _volume: number = 1;
 	private _volumeScale: number = 1;
 
@@ -85,7 +88,9 @@ export class AudioNode {
 	}
 }
 
-export class AudioManager extends Singleton {
+@Singleton
+export class AudioManager {
+	static getInstance: () => AudioManager;
 	public BG: AudioNode;
 	public Music: AudioNode;
 	public Effect: AudioNode;
@@ -93,7 +98,6 @@ export class AudioManager extends Singleton {
 	public Story: AudioNode;
 
 	constructor() {
-		super();
 		this.BG = new AudioNode();
 		this.Music = new AudioNode();
 		this.Effect = new AudioNode();
