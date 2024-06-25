@@ -2,12 +2,12 @@ import { CONST } from './const/const';
 import { Base } from './corekit/base/view-base';
 
 export class Maid {
-	static Base: typeof Base;
-	CONST: typeof CONST;
+    static Base: typeof Base;
+    CONST: typeof CONST;
 }
 
 declare global {
-	var maid: Maid;
+    var maid: Maid;
 }
 
 globalThis.maid = new Maid();
