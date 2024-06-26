@@ -20,4 +20,5 @@ export * from './corekit/base/ui-base';
 export * from './corekit/base/view-base';
 export * from './corekit/decorater/function';
 export * from './corekit/define/ui';
+export * from './corekit/utils/promise';
 export * from './data/data';
