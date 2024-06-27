@@ -30,6 +30,6 @@ export class PromiseList {
     }
 }
 
-export function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+export function delay(s: number) {
+    return new Promise((resolve) => setTimeout(resolve, s * 1000));
 }
