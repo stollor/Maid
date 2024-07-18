@@ -3,11 +3,15 @@ import { Data } from '../../data/data';
 
 const { ccclass, property } = _decorator;
 
+export type MyNode = Node & { [index: string]: MyNode };
+
 declare module 'cc' {
     interface Node {
+        child: MyNode[];
         oparity: number;
         ui: UITransform;
         zIndex: number;
+        childCount: number;
         /**获取组件*/
         getCmp: () => void;
         bindData: (data: Data) => void;
@@ -15,12 +19,117 @@ declare module 'cc' {
         moveAnchorTo: (x: number, y: number) => void;
         getExtendComponent: (comp: any) => any;
         setStr: (data: string | Data) => void;
+        /**
+         * 获取子节点
+         * 传入路径或名称
+         * '@'开头的节点(唯一化节点)可以直接获取
+         *  */
+        $: (s: string) => Node | undefined;
+        _find: (name: string) => Node | undefined;
     }
 }
 
-Node.prototype.getCmp = function (comp: any) {
-    return this.getComponent(comp);
+Node.prototype._find = function (name: string): Node | undefined {
+    if (!this.children || this.children.length === 0) {
+        return undefined;
+    }
+
+    for (const child of this.children) {
+        if (child.name === name) {
+            return child;
+        }
+
+        const found = child._find(name);
+        if (found) {
+            return new Proxy(found, {
+                get: (target: Node, property: string, receiver: any) => {
+                    // 如果属性以 $ 开头,则尝试从 this._nodes 中获取对应的节点
+                    if (property.startsWith('$$')) {
+                        return this.$(property.replace('$$', '@'));
+                    } else if (property.startsWith('$')) {
+                        return this.$(property.replace('$', ''));
+                    }
+                    // 否则,使用原有的属性访问逻辑
+                    return Reflect.get(target, property, receiver);
+                },
+            });
+        }
+    }
+
+    return undefined;
 };
+
+// Object.defineProperty(Node.prototype, '_', {
+//     configurable: true,
+//     enumerable: false,
+//     get() {
+//         if (this._proxy) return this._proxy;
+//         this._proxy = new Proxy(this, {
+//             get: (target: Node, property: string, receiver: any) => {
+//                 // 如果属性以 $ 开头,则尝试从 this._nodes 中获取对应的节点
+//                 if (property.startsWith('$$')) {
+//                     return this.$(property.replace('$$', '@'));
+//                 } else if (property.startsWith('$')) {
+//                     return this.$(property.replace('$', ''));
+//                 }
+//                 // 否则,使用原有的属性访问逻辑
+//                 return Reflect.get(target, property, receiver);
+//             },
+//         });
+//         return this._proxy;
+//     },
+// });
+
+Object.defineProperty(Node.prototype, 'child', {
+    configurable: true,
+    enumerable: false,
+    get() {
+        let list = [];
+        for (let i = 0; i < this.children.length; i++) {
+            list.push(
+                new Proxy(this.children[i], {
+                    get: (target: Node, property: string, receiver: any) => {
+                        // 如果属性以 $ 开头,则尝试从 this._nodes 中获取对应的节点
+                        if (property.startsWith('$$')) {
+                            return target.$(property.replace('$$', '@'));
+                        } else if (property.startsWith('$')) {
+                            return target.$(property.replace('$', ''));
+                        }
+                        // 否则,使用原有的属性访问逻辑
+                        return Reflect.get(target, property, receiver);
+                    },
+                })
+            );
+        }
+        return list;
+    },
+});
+
+Node.prototype.$ = function (s: string) {
+    if (!s) return undefined;
+    if (s.startsWith('@')) {
+        if (!this._cache) this._cache = {};
+        if (this._cache[s]) return this._cache[s];
+        this._cache[s] = this._find(s);
+        return this._cache[s];
+    }
+    return new Proxy(this.getChildByName(s), {
+        get: (target: Node, property: string, receiver: any) => {
+            // 如果属性以 $ 开头,则尝试从 this._nodes 中获取对应的节点
+            if (property.startsWith('$$')) {
+                return this.$(property.replace('$$', '@'));
+            } else if (property.startsWith('$')) {
+                return this.$(property.replace('$', ''));
+            }
+            // 否则,使用原有的属性访问逻辑
+            return Reflect.get(target, property, receiver);
+        },
+    }) as Node & { [index: string]: Node };
+};
+
+// Node.prototype.getCmp = function (comp: any) {
+//     return this.getComponent(comp);
+// };
 
 Node.prototype.setStr = function (data: string | Data) {
     let label = this.getComponent(Label);
@@ -80,6 +189,14 @@ Object.defineProperty(Node.prototype, 'ui', {
     enumerable: false,
     get() {
         return this.getComponent(UITransform);
+    },
+});
+
+Object.defineProperty(Node.prototype, 'childCount', {
+    configurable: true,
+    enumerable: false,
+    get() {
+        return this.children.length;
     },
 });
 
