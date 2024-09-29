@@ -1,5 +1,5 @@
 import { CCBoolean, CCFloat, Material, Node, ScrollView, UITransform, Widget, _decorator, assetManager } from 'cc';
-import { Direction } from '../../const/enum';
+import { Direction } from '../../../const/enum';
 const { ccclass, property } = _decorator;
 
 @ccclass('MScrollView')

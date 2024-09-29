@@ -1,6 +1,52 @@
-import { Color, Layers, Node, Sprite, SpriteFrame, Texture2D, UITransform, Widget, assetManager } from 'cc';
+import { Color, Layers, Node, Sprite, SpriteFrame, Texture2D, UITransform, Widget, assetManager, instantiate } from 'cc';
+
+export type MyNode = Node & { [index: string]: MyNode };
+
+export const NodeHandler: ProxyHandler<Node> = {
+    get: (target: Node, property: string, receiver) => {
+        // 如果属性以 $ 开头,则尝试从 this._nodes 中获取对应的节点
+        if (property.startsWith('$$')) {
+            return target.$(property.replace('$$', '@'));
+        } else if (property.startsWith('$')) {
+            return target.$(property.replace('$', ''));
+        }else if (property.startsWith('cmp')) {
+            return target.getComponent(property.replace('$', ''));
+        }
+
+        if (property == 'copy') {
+            return new Proxy(instantiate(target), NodeHandler);
+        }
+
+        // 确保属性存在
+        if (!(property in target)) {
+            //throw new Error(`Node 中不存在属性: ${property} `);
+        }
+
+        // 调用目标对象的方法
+        return target[property];
+    },
+};
 
 export class NodeUtil {
+    find(node: Node, name: string): MyNode | undefined {
+        if (!node.children || node.children.length === 0) {
+            return undefined;
+        }
+
+        for (const child of node.children) {
+            if (child.name === name) {
+                return new Proxy(child, NodeHandler) as MyNode;
+            }
+
+            const found = this.find(child, name);
+            if (found) {
+                return new Proxy(found, NodeHandler) as MyNode;
+            }
+        }
+
+        return undefined;
+    }
+
     /**
      * 获得一个顶级UI节点
      * @param name 节点名称

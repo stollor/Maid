@@ -1,6 +1,6 @@
 import { CCInteger, EventHandler, Layout, Node, _decorator, instantiate } from 'cc';
-import { range } from '../../corekit/decorater/function';
-import { MathUtil } from '../../utils/math';
+import { MathUtil } from '../../../utils/math';
+import { range } from '../../decorater/function';
 const { ccclass, property } = _decorator;
 
 @ccclass('MLayout')

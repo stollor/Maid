@@ -1,3 +1,3 @@
 export const CONST = {
-	DEV: true,
+    DEV: true,
 };

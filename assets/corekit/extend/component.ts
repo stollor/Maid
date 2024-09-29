@@ -1,6 +1,6 @@
 import { _decorator, Asset, Component, isValid } from 'cc';
 import { EDITOR } from 'cc/env';
-import { MyNode } from './node';
+import { MyNode } from '../../utils/node';
 const { ccclass, property } = _decorator;
 
 declare module 'cc' {
