@@ -1,6 +1,3 @@
-import { sys } from 'cc';
-import { DEV } from 'cc/env';
-import { isArray } from 'lodash-es';
 import { Singleton } from '../decorater/function';
 
 enum DebugType {
@@ -93,43 +90,43 @@ export class DebugManger {
 //     }
 // }
 
-var onCatchError = () => {
-    if (sys.isNative) {
-        //@ts-ignore
-        jsb.onError(_onCatchError);
-    }
-    if (sys.isBrowser && DEV) {
-        let originalError = console.error;
-        console.error = (msg: any, ...param) => {
-            //originalError(msg, ...param);
-            _onCatchError(msg, ...param);
-        };
-    }
-};
-//location, message, stack
-var _onCatchError = (...args) => {
-    if (isArray(args)) {
-        args.forEach((arg) => {
-            if (arg.message) {
-                if (globalThis.log) {
-                    globalThis.log.error(arg.message);
-                } else {
-                    console.info(arg.message);
-                }
-            }
-            if (arg.stack) {
-                if (globalThis.log) {
-                    globalThis.log.error(arg.stack);
-                } else {
-                    console.info(arg.stack);
-                }
-            }
-        });
-    } else {
-        console.info(args);
-    }
+// var onCatchError = () => {
+//     if (sys.isNative) {
+//         //@ts-ignore
+//         jsb.onError(_onCatchError);
+//     }
+//     if (sys.isBrowser && DEV) {
+//         let originalError = console.error;
+//         console.error = (msg: any, ...param) => {
+//             //originalError(msg, ...param);
+//             _onCatchError(msg, ...param);
+//         };
+//     }
+// };
+// //location, message, stack
+// var _onCatchError = (...args) => {
+//     if (isArray(args)) {
+//         args.forEach((arg) => {
+//             if (arg.message) {
+//                 if (globalThis.log) {
+//                     globalThis.log.error(arg.message);
+//                 } else {
+//                     console.info(arg.message);
+//                 }
+//             }
+//             if (arg.stack) {
+//                 if (globalThis.log) {
+//                     globalThis.log.error(arg.stack);
+//                 } else {
+//                     console.info(arg.stack);
+//                 }
+//             }
+//         });
+//     } else {
+//         console.info(args);
+//     }
 
-    //log.error(...args);
-};
+//     //log.error(...args);
+// };
 
 //onCatchError();
