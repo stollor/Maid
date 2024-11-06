@@ -1,8 +1,8 @@
 import { _decorator, CCString, Component, Node } from 'cc';
 const { ccclass, property, menu, executeInEditMode } = _decorator;
 
-@executeInEditMode(true)
 @ccclass('UIState')
+@executeInEditMode(true)
 export default class UIState extends Component {
     @property _stateData: Map<string, {}>;
     @property(CCString) _nowState: string = 'define';

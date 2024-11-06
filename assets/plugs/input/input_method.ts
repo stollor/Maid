@@ -2,7 +2,6 @@ import { _decorator, Component, EventHandler, instantiate, Label, Node } from 'c
 import { pinYinUtil } from './pinyinUtil';
 import { InputTool } from './tool';
 const { ccclass, property } = _decorator;
-
 @ccclass('InputMethod')
 export class InputMethod extends Component {
     @property(Node) CWItem!: Node;
@@ -10,7 +9,7 @@ export class InputMethod extends Component {
     @property({ type: [EventHandler], displayName: '选中词后' }) inputChoose: EventHandler[] = [];
 
     private _CWN: number = 5;
-    /** 当前候选词页数index */
+    /** 当前候选词页数index*/
     private _nowCWPI: number = 0;
 
     private _items: Node[] = [];

@@ -16,7 +16,7 @@ export class UIManager {
 
     constructor() {
         this._pool = new NodePoolManager();
-        this._nodeBlackLayer = this._getBlackLayer();
+        //this._nodeBlackLayer = this._getBlackLayer();
     }
 
     getLevel(name: string, zIndex?: number) {

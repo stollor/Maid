@@ -1,5 +1,6 @@
 import { sys } from 'cc';
 import { DEV } from 'cc/env';
+import { isArray } from 'lodash-es';
 import { Singleton } from '../decorater/function';
 
 enum DebugType {
@@ -107,8 +108,28 @@ var onCatchError = () => {
 };
 //location, message, stack
 var _onCatchError = (...args) => {
-    console.info(args);
+    if (isArray(args)) {
+        args.forEach((arg) => {
+            if (arg.message) {
+                if (globalThis.log) {
+                    globalThis.log.error(arg.message);
+                } else {
+                    console.info(arg.message);
+                }
+            }
+            if (arg.stack) {
+                if (globalThis.log) {
+                    globalThis.log.error(arg.stack);
+                } else {
+                    console.info(arg.stack);
+                }
+            }
+        });
+    } else {
+        console.info(args);
+    }
+
     //log.error(...args);
 };
 
-onCatchError();
+//onCatchError();
